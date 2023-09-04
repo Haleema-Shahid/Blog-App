@@ -16,4 +16,5 @@ public interface UserService {
     String register(UserEntity user);
     String verifyUser(String email, String code);
 
+    String editProfile(UserEntity user);
 }

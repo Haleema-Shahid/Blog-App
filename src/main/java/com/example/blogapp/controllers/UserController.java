@@ -1,10 +1,12 @@
 package com.example.blogapp.controllers;
 
 import com.example.blogapp.DTOs.UserLoginPostDTO;
+import com.example.blogapp.DTOs.UserProfilePostDTO;
 import com.example.blogapp.DTOs.UserSignupPostDTO;
 import com.example.blogapp.DTOs.UserVerificationGetDTO;
 import com.example.blogapp.entities.UserEntity;
 import com.example.blogapp.services.UserService;
+import org.apache.catalina.User;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -58,6 +60,13 @@ public class UserController {
     @GetMapping("/verification")
     public ResponseEntity<String> verifyUser(@RequestBody UserVerificationGetDTO verificationDTO){
         String response = userService.verifyUser(verificationDTO.getUserEmail(), verificationDTO.getCode());
+        return new ResponseEntity<>(response,HttpStatus.OK);
+    }
+
+    @PostMapping("/edit")
+    public ResponseEntity<String> updateUser(@RequestBody UserProfilePostDTO userProfilePostDTO){
+        UserEntity user = modelMapper.map(userProfilePostDTO, UserEntity.class);
+        String response = userService.editProfile(user);
         return new ResponseEntity<>(response,HttpStatus.OK);
     }
 

@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.sql.Date;
 import java.util.Collection;
 import java.util.Objects;
 
@@ -61,6 +62,9 @@ public class UserEntity implements UserDetails {
     @Basic
     @Column(name = "is_enabled")
     private boolean isEnabled;
+    @Basic
+    @Column(name = "dob")
+    private Date dob;
 
     public Integer getId() {
         return id;
@@ -250,12 +254,19 @@ public class UserEntity implements UserDetails {
         this.verificationCode = verificationCode;
     }
 
-
     public boolean getIsEnabled() {
         return isEnabled;
     }
 
     public void setIsEnabled(boolean isEnabled) {
         this.isEnabled = isEnabled;
+    }
+
+    public Date getDob() {
+        return dob;
+    }
+
+    public void setDob(Date dob) {
+        this.dob = dob;
     }
 }

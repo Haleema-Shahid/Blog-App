@@ -79,17 +79,33 @@ public class UserServiceImpl implements UserService {
     public String verifyUser(String email, String code) {
         try {
             UserEntity user = userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("User not found."));
-            if(user.getVerificationCode().equals(code)){
+            if (user.getVerificationCode().equals(code)) {
                 user.setIsEnabled(true);
                 userRepository.save(user);
                 return "enabled";
-            }
-            else{
+            } else {
                 return "wrong code";
             }
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             return e.getMessage();
+        }
+    }
+
+    @Override
+    public String editProfile(UserEntity user) {
+        try {
+            UserEntity userEntity = userRepository.findByEmail(user.getEmail()).orElseThrow(()->new UsernameNotFoundException("User doesnt exist"));
+            userEntity.setFirstname(user.getFirstname());
+            userEntity.setLastname(user.getLastname());
+            userEntity.setPassword(user.getPassword());
+            userEntity.setEmail(user.getEmail());
+            userEntity.setDob(user.getDob());
+            userEntity.setBio(user.getBio());
+            userEntity.setProfileImage(user.getProfileImage());
+            userRepository.save(userEntity);
+            return "update successful!";
+        } catch (Exception e) {
+            return "Failed!";
         }
     }
 
