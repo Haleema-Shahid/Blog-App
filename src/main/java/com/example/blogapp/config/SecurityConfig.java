@@ -32,7 +32,8 @@ public class SecurityConfig {
 //        http.csrf(AbstractHttpConfigurer::disable);
 //        http.cors(AbstractHttpConfigurer::disable);
         http.authorizeHttpRequests(auth -> auth.requestMatchers("/users/login").permitAll()
-                .requestMatchers("/users/add-user").permitAll());
+                .requestMatchers("/users/add-user").permitAll()
+                .requestMatchers("/users/verification").permitAll());
 //        http.httpBasic(Customizer.withDefaults());
         http.csrf(AbstractHttpConfigurer::disable);
         http.cors(AbstractHttpConfigurer::disable);

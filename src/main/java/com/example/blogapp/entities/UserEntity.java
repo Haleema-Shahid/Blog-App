@@ -57,10 +57,10 @@ public class UserEntity implements UserDetails {
     private Collection<SuggestionReplyEntity> suggestionRepliesById;
     @Basic
     @Column(name = "verification_code", length = 64)
-    private Integer verificationCode;
+    private String verificationCode;
     @Basic
     @Column(name = "is_enabled")
-    private Byte isEnabled;
+    private boolean isEnabled;
 
     public Integer getId() {
         return id;
@@ -129,10 +129,7 @@ public class UserEntity implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        if(isEnabled.equals(true)) {
-            return true;
-        }
-        else return false;
+        return isEnabled;
     }
 
     public Role getRole() {
@@ -245,19 +242,20 @@ public class UserEntity implements UserDetails {
         this.suggestionRepliesById = suggestionRepliesById;
     }
 
-    public Integer getVerificationCode() {
+    public String getVerificationCode() {
         return verificationCode;
     }
 
-    public void setVerificationCode(Integer verificationCode) {
+    public void setVerificationCode(String verificationCode) {
         this.verificationCode = verificationCode;
     }
 
-    public Byte getIsEnabled() {
+
+    public boolean getIsEnabled() {
         return isEnabled;
     }
 
-    public void setIsEnabled(Byte isEnabled) {
+    public void setIsEnabled(boolean isEnabled) {
         this.isEnabled = isEnabled;
     }
 }

@@ -13,6 +13,7 @@ public interface UserService {
     Optional<UserEntity> getUserByEmailAndPassword(String email, String password);
     Optional<UserEntity> getUserById(Integer id);
     String getUser(String email, String password);
-
+    String register(UserEntity user);
+    String verifyUser(String email, String code);
 
 }
