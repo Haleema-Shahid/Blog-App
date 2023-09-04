@@ -34,7 +34,11 @@ public class SecurityConfig {
         http.authorizeHttpRequests(auth -> auth.requestMatchers("/users/login").permitAll()
                 .requestMatchers("/users/add-user").permitAll()
                 .requestMatchers("/users/verification").permitAll()
-                .requestMatchers("/users/edit").permitAll());
+                .requestMatchers("/users/edit").permitAll()
+                .requestMatchers("/swagger-ui-custom.html").permitAll()
+                .requestMatchers("/swagger-ui/index.html").permitAll()
+                .requestMatchers("/swagger-ui/**").permitAll()
+                .requestMatchers("/v3/api-docs/**").permitAll());
 //        http.httpBasic(Customizer.withDefaults());
         http.csrf(AbstractHttpConfigurer::disable);
         http.cors(AbstractHttpConfigurer::disable);
