@@ -1,13 +1,17 @@
 package com.example.blogapp.entities;
 
+import com.example.blogapp.enums.Role;
 import jakarta.persistence.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
+import java.sql.Date;
 import java.util.Collection;
 import java.util.Objects;
 
 @Entity
 @Table(name = "user", schema = "blog-app", catalog = "")
-public class UserEntity {
+public class UserEntity implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     @Column(name = "id")
@@ -26,7 +30,8 @@ public class UserEntity {
     private String password;
     @Basic
     @Column(name = "role")
-    private String role;
+    @Enumerated(EnumType.STRING)
+    private Role role;
     @Basic
     @Column(name = "bio")
     private String bio;
@@ -51,6 +56,15 @@ public class UserEntity {
     private Collection<SuggestionEntity> suggestionsById;
     @OneToMany(mappedBy = "userByReplierId")
     private Collection<SuggestionReplyEntity> suggestionRepliesById;
+    @Basic
+    @Column(name = "verification_code", length = 64)
+    private String verificationCode;
+    @Basic
+    @Column(name = "is_enabled")
+    private boolean isEnabled;
+    @Basic
+    @Column(name = "dob")
+    private Date dob;
 
     public Integer getId() {
         return id;
@@ -84,6 +98,11 @@ public class UserEntity {
         this.email = email;
     }
 
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return null;
+    }
+
     public String getPassword() {
         return password;
     }
@@ -92,11 +111,37 @@ public class UserEntity {
         this.password = password;
     }
 
-    public String getRole() {
+    @Override
+    public String getUsername() {
+        return email;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return false;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return false;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return false;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return isEnabled;
+    }
+
+    public Role getRole() {
         return role;
     }
 
-    public void setRole(String role) {
+    public void setRole(Role role) {
+        System.out.println("received role from db: "+role);
         this.role = role;
     }
 
@@ -199,5 +244,29 @@ public class UserEntity {
 
     public void setSuggestionRepliesById(Collection<SuggestionReplyEntity> suggestionRepliesById) {
         this.suggestionRepliesById = suggestionRepliesById;
+    }
+
+    public String getVerificationCode() {
+        return verificationCode;
+    }
+
+    public void setVerificationCode(String verificationCode) {
+        this.verificationCode = verificationCode;
+    }
+
+    public boolean getIsEnabled() {
+        return isEnabled;
+    }
+
+    public void setIsEnabled(boolean isEnabled) {
+        this.isEnabled = isEnabled;
+    }
+
+    public Date getDob() {
+        return dob;
+    }
+
+    public void setDob(Date dob) {
+        this.dob = dob;
     }
 }
