@@ -9,6 +9,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @RestController
 @RequestMapping("/blogs")
 public class BlogController {
@@ -19,6 +22,16 @@ public class BlogController {
     @Autowired
     ModelMapper modelMapper;
 
+    @GetMapping("/")
+    public ResponseEntity<List<BlogEntity>> getAllBlogs(){
+        try{
+            List<BlogEntity> blogs = blogService.getAllBlogs();
+            return new ResponseEntity<>(blogs, HttpStatus.OK);
+        }
+        catch(Exception e){
+            return new ResponseEntity<>(new ArrayList<>(), HttpStatus.BAD_REQUEST);
+        }
+    }
     @GetMapping("/{id}")
     public ResponseEntity<String> getBlog(@PathVariable int id){
         try{

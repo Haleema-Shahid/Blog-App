@@ -6,6 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 public class BlogServiceImpl implements BlogService{
 
@@ -49,5 +52,11 @@ public class BlogServiceImpl implements BlogService{
         catch(Exception e){
             return e.getMessage();
         }
+    }
+
+    @Override
+    public List<BlogEntity> getAllBlogs() {
+        List<BlogEntity> blogs = blogRepository.findAll().stream().toList();
+        return blogs;
     }
 }
