@@ -1,0 +1,70 @@
+package com.example.blogapp.controllers;
+
+import com.example.blogapp.DTOs.SuggestionPostDTO;
+import com.example.blogapp.entities.SuggestionEntity;
+import com.example.blogapp.services.SuggestionService;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@RestController
+public class SuggestionController {
+    @Autowired
+    SuggestionService suggestionService;
+    @Autowired
+    ModelMapper modelMapper;
+
+
+    @GetMapping("/blog/{blogId}/suggestions")
+    public ResponseEntity<List<SuggestionEntity>> getAllSuggestionsByBlogId(@PathVariable int blogId) {
+        try {
+            List<SuggestionEntity> suggestions = suggestionService.getAllSuggestionsByBlogId(blogId);
+            return new ResponseEntity<>(suggestions, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(new ArrayList<>(), HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @GetMapping("/user/{userId}/suggestions")
+    public ResponseEntity<List<SuggestionEntity>> getAllSuggestionsByUserId(@PathVariable int userId) {
+        try {
+            List<SuggestionEntity> suggestions = suggestionService.getAllSuggestionsByUserId(userId);
+            return new ResponseEntity<>(suggestions, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(new ArrayList<>(), HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @PostMapping("/blog/{blogId}/suggestion/")
+    public ResponseEntity<SuggestionEntity> addSuggestion(@PathVariable int blogId, @RequestBody SuggestionPostDTO suggestionDTO) {
+        try {
+            Integer suggesterId = suggestionDTO.getSuggesterId();
+            String suggestionString = suggestionDTO.getSuggestionString();
+
+            SuggestionEntity suggestion = suggestionService.addSuggestion(blogId, suggesterId, suggestionString);
+            return new ResponseEntity<>(suggestion, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(new SuggestionEntity(), HttpStatus.NOT_FOUND);
+        }
+    }
+
+
+    @PostMapping("/blog/{blogId}/suggestion/{id}")
+    public ResponseEntity<SuggestionEntity> editSuggestion(@PathVariable int blogId, int suggestionId, @RequestBody SuggestionPostDTO suggestionDTO) {
+        try {
+            String suggestionString = suggestionDTO.getSuggestionString();
+
+            SuggestionEntity suggestion = suggestionService.editSuggestion(suggestionId, suggestionString);
+            return new ResponseEntity<>(suggestion, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(new SuggestionEntity(), HttpStatus.NOT_FOUND);
+        }
+    }
+
+
+}
