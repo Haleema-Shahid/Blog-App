@@ -25,10 +25,10 @@ public class SuggestionServiceImpl implements SuggestionService {
     BlogRepository blogRepository;
 
     @Override
-    public List<SuggestionEntity> getAllSuggestionsByBlogId(int blogId) {
+    public List<SuggestionEntity> getAllSuggestionsByBlogId(int blogId) throws Exception {
 
         List<SuggestionEntity> suggestions = suggestionRepository.findAllByBlogId(blogId).orElseThrow(
-                () -> new RuntimeException("Suggestions not found.")
+                () -> new Exception("Suggestions not found.")
         );
 
         return suggestions;

@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface SuggestionService {
-    List<SuggestionEntity> getAllSuggestionsByBlogId(int blogId);
+    List<SuggestionEntity> getAllSuggestionsByBlogId(int blogId) throws Exception;
 
     List<SuggestionEntity> getAllSuggestionsByUserId(int userId);
 

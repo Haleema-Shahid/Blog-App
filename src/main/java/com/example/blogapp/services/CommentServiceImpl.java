@@ -23,7 +23,8 @@ public class CommentServiceImpl implements CommentService{
     @Override
     public String addComment(CommentEntity comment) {
         CommentEntity commentEntity = commentRepository.save(comment);
-        return "added successfully!";}
+        return "added successfully!";
+    }
 
     @Override
     public String editComment(int id, int blogId, CommentEntity updated) {
@@ -35,4 +36,4 @@ public class CommentServiceImpl implements CommentService{
     }
 
 }
-}
+

@@ -1,10 +1,13 @@
 package com.example.blogapp.DTOs;
 
-import lombok.Data;
+import lombok.*;
 
 import java.util.List;
 
-@Data
+@RequiredArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
 public class BlogPostDTO {
     String content;
     List<String> attachments;

@@ -8,6 +8,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.sql.Date;
 import java.util.Collection;
 import java.util.Objects;
+import java.util.Set;
 
 @Entity
 @Table(name = "user", schema = "blog-app", catalog = "")
@@ -39,23 +40,23 @@ public class UserEntity implements UserDetails {
     @Column(name = "profile_image")
     private String profileImage;
     @OneToMany(mappedBy = "userByUserId")
-    private Collection<BlogEntity> blogsById;
+    private Set<BlogEntity> blogsById;
     @OneToMany(mappedBy = "userByLikerId")
-    private Collection<BlogLikesEntity> blogLikesById;
+    private Set<BlogLikesEntity> blogLikesById;
     @OneToMany(mappedBy = "userByReporterId")
-    private Collection<BlogReportEntity> blogReportsById;
+    private Set<BlogReportEntity> blogReportsById;
     @OneToMany(mappedBy = "userByCommenterId")
-    private Collection<CommentEntity> commentsById;
+    private Set<CommentEntity> commentsById;
     @OneToMany(mappedBy = "userByLikerId")
-    private Collection<CommentLikesEntity> commentLikesById;
+    private Set<CommentLikesEntity> commentLikesById;
     @OneToMany(mappedBy = "userByReplierId")
-    private Collection<CommentReplyEntity> commentRepliesById;
+    private Set<CommentReplyEntity> commentRepliesById;
     @OneToMany(mappedBy = "userByReporterId")
-    private Collection<CommentReportEntity> commentReportsById;
+    private Set<CommentReportEntity> commentReportsById;
     @OneToMany(mappedBy = "userBySuggesterId")
-    private Collection<SuggestionEntity> suggestionsById;
+    private Set<SuggestionEntity> suggestionsById;
     @OneToMany(mappedBy = "userByReplierId")
-    private Collection<SuggestionReplyEntity> suggestionRepliesById;
+    private Set<SuggestionReplyEntity> suggestionRepliesById;
     @Basic
     @Column(name = "verification_code", length = 64)
     private String verificationCode;
@@ -174,75 +175,75 @@ public class UserEntity implements UserDetails {
         return Objects.hash(id, firstname, lastname, email, password, role, bio, profileImage);
     }
 
-    public Collection<BlogEntity> getBlogsById() {
+    public Set<BlogEntity> getBlogsById() {
         return blogsById;
     }
 
-    public void setBlogsById(Collection<BlogEntity> blogsById) {
+    public void setBlogsById(Set<BlogEntity> blogsById) {
         this.blogsById = blogsById;
     }
 
-    public Collection<BlogLikesEntity> getBlogLikesById() {
+    public Set<BlogLikesEntity> getBlogLikesById() {
         return blogLikesById;
     }
 
-    public void setBlogLikesById(Collection<BlogLikesEntity> blogLikesById) {
+    public void setBlogLikesById(Set<BlogLikesEntity> blogLikesById) {
         this.blogLikesById = blogLikesById;
     }
 
-    public Collection<BlogReportEntity> getBlogReportsById() {
+    public Set<BlogReportEntity> getBlogReportsById() {
         return blogReportsById;
     }
 
-    public void setBlogReportsById(Collection<BlogReportEntity> blogReportsById) {
+    public void setBlogReportsById(Set<BlogReportEntity> blogReportsById) {
         this.blogReportsById = blogReportsById;
     }
 
-    public Collection<CommentEntity> getCommentsById() {
+    public Set<CommentEntity> getCommentsById() {
         return commentsById;
     }
 
-    public void setCommentsById(Collection<CommentEntity> commentsById) {
+    public void setCommentsById(Set<CommentEntity> commentsById) {
         this.commentsById = commentsById;
     }
 
-    public Collection<CommentLikesEntity> getCommentLikesById() {
+    public Set<CommentLikesEntity> getCommentLikesById() {
         return commentLikesById;
     }
 
-    public void setCommentLikesById(Collection<CommentLikesEntity> commentLikesById) {
+    public void setCommentLikesById(Set<CommentLikesEntity> commentLikesById) {
         this.commentLikesById = commentLikesById;
     }
 
-    public Collection<CommentReplyEntity> getCommentRepliesById() {
+    public Set<CommentReplyEntity> getCommentRepliesById() {
         return commentRepliesById;
     }
 
-    public void setCommentRepliesById(Collection<CommentReplyEntity> commentRepliesById) {
+    public void setCommentRepliesById(Set<CommentReplyEntity> commentRepliesById) {
         this.commentRepliesById = commentRepliesById;
     }
 
-    public Collection<CommentReportEntity> getCommentReportsById() {
+    public Set<CommentReportEntity> getCommentReportsById() {
         return commentReportsById;
     }
 
-    public void setCommentReportsById(Collection<CommentReportEntity> commentReportsById) {
+    public void setCommentReportsById(Set<CommentReportEntity> commentReportsById) {
         this.commentReportsById = commentReportsById;
     }
 
-    public Collection<SuggestionEntity> getSuggestionsById() {
+    public Set<SuggestionEntity> getSuggestionsById() {
         return suggestionsById;
     }
 
-    public void setSuggestionsById(Collection<SuggestionEntity> suggestionsById) {
+    public void setSuggestionsById(Set<SuggestionEntity> suggestionsById) {
         this.suggestionsById = suggestionsById;
     }
 
-    public Collection<SuggestionReplyEntity> getSuggestionRepliesById() {
+    public Set<SuggestionReplyEntity> getSuggestionRepliesById() {
         return suggestionRepliesById;
     }
 
-    public void setSuggestionRepliesById(Collection<SuggestionReplyEntity> suggestionRepliesById) {
+    public void setSuggestionRepliesById(Set<SuggestionReplyEntity> suggestionRepliesById) {
         this.suggestionRepliesById = suggestionRepliesById;
     }
 

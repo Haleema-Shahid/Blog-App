@@ -1,9 +1,6 @@
 package com.example.blogapp.controllers;
 
-import com.example.blogapp.DTOs.UserLoginPostDTO;
-import com.example.blogapp.DTOs.UserProfilePostDTO;
-import com.example.blogapp.DTOs.UserSignupPostDTO;
-import com.example.blogapp.DTOs.UserVerificationGetDTO;
+import com.example.blogapp.DTOs.*;
 import com.example.blogapp.entities.UserEntity;
 import com.example.blogapp.services.UserService;
 import org.apache.catalina.User;
@@ -44,7 +41,7 @@ public class UserController {
 
 
     @PostMapping("/add-user")
-    public UserEntity addUser(@RequestBody UserSignupPostDTO user){
+    public UserDTO addUser(@RequestBody UserSignupPostDTO user){
         System.out.println("add-user api...");
         UserEntity userEntity = modelMapper.map(user, UserEntity.class);
 
@@ -54,9 +51,12 @@ public class UserController {
 
         System.out.println("mapped "+ userEntity.toString());
         userService.register(userEntity);
-        return userEntity;
+
+        UserDTO userDto = modelMapper.map(userEntity, UserDTO.class);
+        return userDto;
     }
 
+    
     @GetMapping("/verification")
     public ResponseEntity<String> verifyUser(@RequestBody UserVerificationGetDTO verificationDTO){
         String response = userService.verifyUser(verificationDTO.getUserEmail(), verificationDTO.getCode());

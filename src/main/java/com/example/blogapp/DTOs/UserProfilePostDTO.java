@@ -3,13 +3,16 @@ package com.example.blogapp.DTOs;
 import com.example.blogapp.enums.Role;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
+import lombok.*;
 
+import java.io.Serializable;
 import java.util.Date;
-import java.util.List;
 
-@Data
-public class UserProfilePostDTO {
+@RequiredArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
+public class UserProfilePostDTO implements Serializable {
     @JsonProperty("firstname")
     String firstName;
     @JsonProperty("lastname")
@@ -23,5 +26,4 @@ public class UserProfilePostDTO {
     String bio;
     @JsonProperty("pfp")
     String profilePicture;
-    List<String> changedFields;
 }

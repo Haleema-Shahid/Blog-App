@@ -1,8 +1,11 @@
 package com.example.blogapp.DTOs;
 
-import lombok.Data;
+import lombok.*;
 
-@Data
+@RequiredArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
 public class SuggestionPostDTO {
     String suggestionString;
     Integer suggesterId;

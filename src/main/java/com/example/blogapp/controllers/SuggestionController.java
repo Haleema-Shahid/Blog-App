@@ -3,6 +3,7 @@ package com.example.blogapp.controllers;
 import com.example.blogapp.DTOs.SuggestionPostDTO;
 import com.example.blogapp.entities.SuggestionEntity;
 import com.example.blogapp.services.SuggestionService;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -11,16 +12,17 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
-
+@RequiredArgsConstructor
 @RestController
 public class SuggestionController {
-    @Autowired
-    SuggestionService suggestionService;
-    @Autowired
-    ModelMapper modelMapper;
+
+    private final SuggestionService suggestionService;
+
+    private final ModelMapper modelMapper;
 
 
-    @GetMapping("/blog/{blogId}/suggestions")
+
+    @GetMapping("/blog/suggestions/{blogId}")
     public ResponseEntity<List<SuggestionEntity>> getAllSuggestionsByBlogId(@PathVariable int blogId) {
         try {
             List<SuggestionEntity> suggestions = suggestionService.getAllSuggestionsByBlogId(blogId);
@@ -54,7 +56,7 @@ public class SuggestionController {
     }
 
 
-    @PostMapping("/blog/{blogId}/suggestion/{id}")
+    @PostMapping("/suggestion/{id}")
     public ResponseEntity<SuggestionEntity> editSuggestion(@PathVariable int blogId, int suggestionId, @RequestBody SuggestionPostDTO suggestionDTO) {
         try {
             String suggestionString = suggestionDTO.getSuggestionString();

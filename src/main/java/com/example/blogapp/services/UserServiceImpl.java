@@ -10,6 +10,7 @@ import org.modelmapper.internal.bytebuddy.utility.RandomString;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -89,6 +90,15 @@ public class UserServiceImpl implements UserService {
         } catch (Exception e) {
             return e.getMessage();
         }
+    }
+
+    private void verifyEmail(UserEntity userEntity, String email) throws MessagingException, UnsupportedEncodingException {
+       if(!userEntity.getEmail().equals(email)){
+           String randomCode = RandomString.make(64);
+           userEntity.setVerificationCode(randomCode);
+           userEntity.setIsEnabled(false);
+           sendVerificationEmail(userEntity, email);
+       }
     }
 
     @Override
