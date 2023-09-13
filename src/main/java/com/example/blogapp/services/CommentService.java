@@ -9,4 +9,11 @@ public interface CommentService {
     String addComment(CommentEntity comment);
 
     String editComment(int id, int blogId, CommentEntity comment);
+
+    String likeComment(int commentId) throws Exception;
+    String unLikeComment(int commentId) throws Exception;
+
+    String reportComment(int commentId) throws Exception;
+
+    String deleteComment(int commentId) throws Exception;
 }

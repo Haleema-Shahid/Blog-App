@@ -1,14 +1,19 @@
 package com.example.blogapp.entities;
 
 import com.example.blogapp.enums.Role;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.sql.Date;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Entity
 @Table(name = "user", schema = "blog-app", catalog = "")
@@ -40,6 +45,8 @@ public class UserEntity implements UserDetails {
     @Column(name = "profile_image")
     private String profileImage;
     @OneToMany(mappedBy = "userByUserId")
+    @JsonManagedReference
+    @JsonIgnore
     private Set<BlogEntity> blogsById;
     @OneToMany(mappedBy = "userByLikerId")
     private Set<BlogLikesEntity> blogLikesById;
@@ -49,20 +56,20 @@ public class UserEntity implements UserDetails {
     private Set<CommentEntity> commentsById;
     @OneToMany(mappedBy = "userByLikerId")
     private Set<CommentLikesEntity> commentLikesById;
-    @OneToMany(mappedBy = "userByReplierId")
-    private Set<CommentReplyEntity> commentRepliesById;
+
     @OneToMany(mappedBy = "userByReporterId")
     private Set<CommentReportEntity> commentReportsById;
     @OneToMany(mappedBy = "userBySuggesterId")
+    @JsonManagedReference
+    @JsonIgnore
     private Set<SuggestionEntity> suggestionsById;
-    @OneToMany(mappedBy = "userByReplierId")
-    private Set<SuggestionReplyEntity> suggestionRepliesById;
+
     @Basic
     @Column(name = "verification_code", length = 64)
     private String verificationCode;
     @Basic
     @Column(name = "is_enabled")
-    private boolean isEnabled;
+    private Byte isEnabled;
     @Basic
     @Column(name = "dob")
     private Date dob;
@@ -101,7 +108,12 @@ public class UserEntity implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
+        // Convert the user's role(s) into a collection of GrantedAuthority objects
+        Collection<? extends GrantedAuthority> authorities = Stream.of(this.role)
+                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.name()))
+                .collect(Collectors.toList());
+
+        return authorities;
     }
 
     public String getPassword() {
@@ -134,12 +146,14 @@ public class UserEntity implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return isEnabled;
+        return isEnabled != 0;
     }
 
     public Role getRole() {
         return role;
     }
+
+
 
     public void setRole(Role role) {
         System.out.println("received role from db: "+role);
@@ -183,6 +197,7 @@ public class UserEntity implements UserDetails {
         this.blogsById = blogsById;
     }
 
+
     public Set<BlogLikesEntity> getBlogLikesById() {
         return blogLikesById;
     }
@@ -194,6 +209,8 @@ public class UserEntity implements UserDetails {
     public Set<BlogReportEntity> getBlogReportsById() {
         return blogReportsById;
     }
+
+
 
     public void setBlogReportsById(Set<BlogReportEntity> blogReportsById) {
         this.blogReportsById = blogReportsById;
@@ -215,13 +232,7 @@ public class UserEntity implements UserDetails {
         this.commentLikesById = commentLikesById;
     }
 
-    public Set<CommentReplyEntity> getCommentRepliesById() {
-        return commentRepliesById;
-    }
 
-    public void setCommentRepliesById(Set<CommentReplyEntity> commentRepliesById) {
-        this.commentRepliesById = commentRepliesById;
-    }
 
     public Set<CommentReportEntity> getCommentReportsById() {
         return commentReportsById;
@@ -239,13 +250,7 @@ public class UserEntity implements UserDetails {
         this.suggestionsById = suggestionsById;
     }
 
-    public Set<SuggestionReplyEntity> getSuggestionRepliesById() {
-        return suggestionRepliesById;
-    }
 
-    public void setSuggestionRepliesById(Set<SuggestionReplyEntity> suggestionRepliesById) {
-        this.suggestionRepliesById = suggestionRepliesById;
-    }
 
     public String getVerificationCode() {
         return verificationCode;
@@ -255,12 +260,24 @@ public class UserEntity implements UserDetails {
         this.verificationCode = verificationCode;
     }
 
-    public boolean getIsEnabled() {
+    public Byte getIsEnabled() {
         return isEnabled;
     }
 
-    public void setIsEnabled(boolean isEnabled) {
+    public void setIsEnabled(Byte isEnabled) {
         this.isEnabled = isEnabled;
+    }
+
+    public void setIsEnabled(boolean isEnabled) {
+        if(isEnabled){
+
+            System.out.println("SETTING AS ENABLED");
+            this.isEnabled = 1;
+        }
+        else{
+            this.isEnabled = 0;
+        }
+
     }
 
     public Date getDob() {

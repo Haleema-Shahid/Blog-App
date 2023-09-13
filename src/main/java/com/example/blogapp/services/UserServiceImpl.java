@@ -1,6 +1,7 @@
 package com.example.blogapp.services;
 
 
+import com.example.blogapp.DTOs.UserLoginDTO;
 import com.example.blogapp.config.JWTService;
 import com.example.blogapp.entities.UserEntity;
 import com.example.blogapp.repositories.UserRepository;
@@ -10,7 +11,6 @@ import org.modelmapper.internal.bytebuddy.utility.RandomString;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -39,84 +39,107 @@ public class UserServiceImpl implements UserService {
         return userRepository.findById(id);
     }
 
-    public String getUser(String username, String password) {
+    public UserLoginDTO getUser(String username, String password) {
         System.out.println("entered getUser");
         try {
+            UserLoginDTO userLoginDTO = new UserLoginDTO();
             UserEntity user = userRepository.findByEmail(username).orElseThrow(() -> new UsernameNotFoundException("No user exists under this email."));
             if (user == null) {
                 System.out.println("user is null");
-                return null;
+                return userLoginDTO;
             }
             System.out.println("user fetched: " + user.getEmail());
             String encodedPassword = user.getPassword();
-            if (passwordEncoder.matches(password, encodedPassword)) {
+            System.out.println("encoded: " + encodedPassword);
+            if (passwordEncoder.matches(password, encodedPassword) ) {
+                System.out.println("matched");
+                if(!user.isEnabled()){
+                    userLoginDTO.setId(-1);
+                    userLoginDTO.setToken("User is not enabled");
+                    return userLoginDTO;
+                }
                 String token = jwtService.generateToken(user);
                 System.out.println(token);
-                return token;
-            } else throw new UsernameNotFoundException("Incorrect Password");
+                userLoginDTO.setToken(token);
+                userLoginDTO.setId(user.getId());
+                return userLoginDTO;
+            } else {
+                userLoginDTO.setId(-2);
+                userLoginDTO.setToken("incorrect password");
+                return userLoginDTO;
+            }
         } catch (UsernameNotFoundException e) {
-            return e.getMessage();
+            System.out.println("caught exception");
+            UserLoginDTO userLoginDTO = new UserLoginDTO();
+            userLoginDTO.setToken("caught exception");
+            userLoginDTO.setId(-1);
+            return userLoginDTO;
         }
     }
 
-    public String register(UserEntity user) {
+    public String register(UserEntity user) throws MessagingException, UnsupportedEncodingException {
 
-        String randomCode = RandomString.make(64);
+        String randomCode = RandomString.make(16);
         user.setVerificationCode(randomCode);
         user.setIsEnabled(false);
 
-        try {
 
-            userRepository.save(user);
-            sendVerificationEmail(user, randomCode);
-            return "email sent";
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            return "exxception thrown";
-        }
+        userRepository.save(user);
+        sendVerificationEmail(user, randomCode);
+        return "email sent";
+
     }
 
     @Override
     public String verifyUser(String email, String code) {
         try {
-            UserEntity user = userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("User not found."));
-            if (user.getVerificationCode().equals(code)) {
+            System.out.println("code is "+code);
+            UserEntity user = userRepository.findByEmail(email).orElseThrow(() -> new Exception("User not found."));
+
+            if(user.getVerificationCode().equals(code)){
+                System.out.println("Got user against code: "+user.toString());
                 user.setIsEnabled(true);
                 userRepository.save(user);
                 return "enabled";
-            } else {
-                return "wrong code";
             }
+            return "not enabled";
+
         } catch (Exception e) {
+            System.out.println("catching exception in verify user");
             return e.getMessage();
         }
     }
 
     private void verifyEmail(UserEntity userEntity, String email) throws MessagingException, UnsupportedEncodingException {
-       if(!userEntity.getEmail().equals(email)){
-           String randomCode = RandomString.make(64);
-           userEntity.setVerificationCode(randomCode);
-           userEntity.setIsEnabled(false);
-           sendVerificationEmail(userEntity, email);
-       }
+        if (!userEntity.getEmail().equals(email)) {
+            String randomCode = RandomString.make(16);
+            userEntity.setEmail(email);
+            userEntity.setVerificationCode(randomCode);
+            userEntity.setIsEnabled(false);
+            sendVerificationEmail(userEntity, randomCode);
+        }
     }
 
     @Override
-    public String editProfile(UserEntity user) {
-        try {
-            UserEntity userEntity = userRepository.findByEmail(user.getEmail()).orElseThrow(()->new UsernameNotFoundException("User doesnt exist"));
+    public String editProfile(UserEntity user) throws Exception {
+
+            UserEntity userEntity = userRepository.findById(user.getId()).orElseThrow(() -> new Exception("User doesnt exist"));
             userEntity.setFirstname(user.getFirstname());
             userEntity.setLastname(user.getLastname());
-            userEntity.setPassword(user.getPassword());
+
+            if(!passwordEncoder.matches(user.getPassword(), userEntity.getPassword())){
+                String encodedPassword = passwordEncoder.encode(user.getPassword());
+                userEntity.setPassword(encodedPassword);
+            }
+            //if email has changed then verify it
+            verifyEmail(userEntity, user.getEmail());
             userEntity.setEmail(user.getEmail());
             userEntity.setDob(user.getDob());
             userEntity.setBio(user.getBio());
             userEntity.setProfileImage(user.getProfileImage());
             userRepository.save(userEntity);
             return "update successful!";
-        } catch (Exception e) {
-            return "Failed!";
-        }
+
     }
 
     private void sendVerificationEmail(UserEntity user, String code)
@@ -126,8 +149,8 @@ public class UserServiceImpl implements UserService {
         String senderName = "Blog App";
         String subject = "Blog App Verification Code";
         String content = "Dear [[name]],<br>"
-                + "Here is your verification code:<br>"
-                + "<h3>[[code]]</h3>"
+                + "Click the link below to verify your email:<br>"
+                + "<h3>[[link]]</h3>"
                 + "Thank you,<br>"
                 + "Blog App";
 
@@ -141,7 +164,9 @@ public class UserServiceImpl implements UserService {
         content = content.replace("[[name]]", user.getFirstname());
 
 
-        content = content.replace("[[code]]", code);
+        String email = user.getEmail();
+        String link = "http://localhost:3000/verification/" +email+"/"+ code;
+        content = content.replace("[[link]]", link);
 
         helper.setText(content, true);
 

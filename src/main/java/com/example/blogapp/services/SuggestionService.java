@@ -8,7 +8,7 @@ import java.util.Optional;
 public interface SuggestionService {
     List<SuggestionEntity> getAllSuggestionsByBlogId(int blogId) throws Exception;
 
-    List<SuggestionEntity> getAllSuggestionsByUserId(int userId);
+    List<SuggestionEntity> getAllSuggestionsByUserId(int userId) throws Exception;
 
     SuggestionEntity addSuggestion(int blogId, int suggesterId, String suggestion);
 

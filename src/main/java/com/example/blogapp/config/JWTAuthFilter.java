@@ -38,17 +38,22 @@ public class JWTAuthFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
 
+        //System.out.println("request: "+request.);
         final String authHeader = request.getHeader("Authorization");
         final String jwt;
         final String username;
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            filterChain.doFilter(request,response);
             if(authHeader == null){
                 System.out.println("auth header is null...");
             }
+            else{
+                System.out.println("received wrong jwt: "+authHeader);
+            }
             System.out.println("exiting jwtauthfilter");
+            filterChain.doFilter(request,response);
             return;
         }
+        System.out.println("received jwt "+authHeader);
         jwt = authHeader.substring(7);
         username = jwtService.extractUsername(jwt);//extract username from jwt token.
         if(username != null && SecurityContextHolder.getContext().getAuthentication()==null){
@@ -63,10 +68,12 @@ public class JWTAuthFilter extends OncePerRequestFilter {
                         null,
                         userDetails.getAuthorities()
                 );
+                System.out.println("Authority: "+authToken.getAuthorities());
                 authToken.setDetails(
                         new WebAuthenticationDetailsSource().buildDetails(request)
                 );
                 SecurityContextHolder.getContext().setAuthentication(authToken);
+                System.out.println("user has been authenticated");
             }
             filterChain.doFilter(request, response);
         }

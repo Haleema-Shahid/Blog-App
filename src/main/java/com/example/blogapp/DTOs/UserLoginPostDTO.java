@@ -3,7 +3,7 @@ package com.example.blogapp.DTOs;
 import lombok.*;
 
 @RequiredArgsConstructor
-@NoArgsConstructor
+//@NoArgsConstructor
 @Getter
 @Setter
 public class UserLoginPostDTO {

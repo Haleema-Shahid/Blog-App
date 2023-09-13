@@ -5,18 +5,18 @@ import jakarta.persistence.*;
 import java.util.Objects;
 
 @Entity
-@Table(name = "blog_report", schema = "blog-app", catalog = "")
-public class BlogReportEntity {
+@Table(name = "blog_attachment", schema = "blog-app", catalog = "")
+public class BlogAttachmentEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     @Column(name = "id")
     private Integer id;
+    @Basic
+    @Column(name = "attachment")
+    private String attachment;
     @ManyToOne
     @JoinColumn(name = "blog_id", referencedColumnName = "id", nullable = false)
     private BlogEntity blogByBlogId;
-    @ManyToOne
-    @JoinColumn(name = "reporter_id", referencedColumnName = "id", nullable = false)
-    private UserEntity userByReporterId;
 
     public Integer getId() {
         return id;
@@ -26,17 +26,25 @@ public class BlogReportEntity {
         this.id = id;
     }
 
+    public String getAttachment() {
+        return attachment;
+    }
+
+    public void setAttachment(String attachment) {
+        this.attachment = attachment;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        BlogReportEntity that = (BlogReportEntity) o;
-        return Objects.equals(id, that.id);
+        BlogAttachmentEntity that = (BlogAttachmentEntity) o;
+        return Objects.equals(id, that.id) && Objects.equals(attachment, that.attachment);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id);
+        return Objects.hash(id, attachment);
     }
 
     public BlogEntity getBlogByBlogId() {
@@ -45,13 +53,5 @@ public class BlogReportEntity {
 
     public void setBlogByBlogId(BlogEntity blogByBlogId) {
         this.blogByBlogId = blogByBlogId;
-    }
-
-    public UserEntity getUserByReporterId() {
-        return userByReporterId;
-    }
-
-    public void setUserByReporterId(UserEntity userByReporterId) {
-        this.userByReporterId = userByReporterId;
     }
 }

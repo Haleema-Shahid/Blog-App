@@ -2,6 +2,9 @@ package com.example.blogapp.entities;
 
 import jakarta.persistence.*;
 
+import java.sql.Date;
+import java.sql.Timestamp;
+import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
 
@@ -27,14 +30,24 @@ public class CommentEntity {
     @ManyToOne
     @JoinColumn(name = "commenter_id", referencedColumnName = "id", nullable = false)
     private UserEntity userByCommenterId;
-    @OneToMany(mappedBy = "commentByCommentId")
+    @OneToMany(mappedBy = "commentByCommentId", cascade= CascadeType.ALL)
     private Set<CommentLikesEntity> commentLikesById;
-    @OneToMany(mappedBy = "commentByCommentId")
-    private Set<CommentReplyEntity> commentRepliesById;
-    @OneToMany(mappedBy = "commentByReplyId")
-    private Set<CommentReplyEntity> commentRepliesById_0;
-    @OneToMany(mappedBy = "commentByCommentId")
+    @OneToMany(mappedBy = "commentByCommentId", cascade= CascadeType.ALL)
     private Set<CommentReportEntity> commentReportsById;
+    @OneToMany(mappedBy = "commentByCommentId", cascade= CascadeType.ALL)
+    private Set<CommentAttachmentEntity> commentAttachmentsById;
+    @Basic
+    @Column(name = "likes")
+    private Integer likes;
+    @Basic
+    @Column(name = "replies")
+    private Integer replies;
+    @Basic
+    @Column(name = "creation_date")
+    private Timestamp creationDate;
+    @Basic
+    @Column(name = "reply_to")
+    private Integer replyTo;
 
     public Integer getId() {
         return id;
@@ -56,16 +69,26 @@ public class CommentEntity {
         return isReported;
     }
 
-    public void setIsReported(Byte isReported) {
-        this.isReported = isReported;
+    public void setIsReported(boolean isReported) {
+        if(isReported){
+            this.isReported = 1;
+        }
+        else{
+            this.isReported=0;
+        }
     }
 
     public Byte getIsHidden() {
         return isHidden;
     }
 
-    public void setIsHidden(Byte isHidden) {
-        this.isHidden = isHidden;
+    public void setIsHidden(boolean isHidden) {
+        if(isHidden){
+            this.isHidden = 1;
+        }
+        else{
+            this.isHidden=0;
+        }
     }
 
     @Override
@@ -105,27 +128,51 @@ public class CommentEntity {
         this.commentLikesById = commentLikesById;
     }
 
-    public Set<CommentReplyEntity> getCommentRepliesById() {
-        return commentRepliesById;
-    }
-
-    public void setCommentRepliesById(Set<CommentReplyEntity> commentRepliesById) {
-        this.commentRepliesById = commentRepliesById;
-    }
-
-    public Set<CommentReplyEntity> getCommentRepliesById_0() {
-        return commentRepliesById_0;
-    }
-
-    public void setCommentRepliesById_0(Set<CommentReplyEntity> commentRepliesById_0) {
-        this.commentRepliesById_0 = commentRepliesById_0;
-    }
-
     public Set<CommentReportEntity> getCommentReportsById() {
         return commentReportsById;
     }
 
     public void setCommentReportsById(Set<CommentReportEntity> commentReportsById) {
         this.commentReportsById = commentReportsById;
+    }
+
+    public Set<CommentAttachmentEntity> getCommentAttachmentsById() {
+        return commentAttachmentsById;
+    }
+
+    public void setCommentAttachmentsById(Set<CommentAttachmentEntity> commentAttachmentsById) {
+        this.commentAttachmentsById = commentAttachmentsById;
+    }
+
+    public Integer getLikes() {
+        return likes;
+    }
+
+    public void setLikes(Integer likes) {
+        this.likes = likes;
+    }
+
+    public Integer getReplies() {
+        return replies;
+    }
+
+    public void setReplies(Integer replies) {
+        this.replies = replies;
+    }
+
+    public Timestamp getCreationDate() {
+        return creationDate;
+    }
+
+    public void setCreationDate(Timestamp creationDate) {
+        this.creationDate = creationDate;
+    }
+
+    public Integer getReplyTo() {
+        return replyTo;
+    }
+
+    public void setReplyTo(Integer replyTo) {
+        this.replyTo = replyTo;
     }
 }

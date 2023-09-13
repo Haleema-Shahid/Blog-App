@@ -6,28 +6,29 @@ import com.example.blogapp.entities.UserEntity;
 import com.example.blogapp.repositories.BlogRepository;
 import com.example.blogapp.repositories.SuggestionRepository;
 import com.example.blogapp.repositories.UserRepository;
+import lombok.RequiredArgsConstructor;
+import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@RequiredArgsConstructor
 @Service
 public class SuggestionServiceImpl implements SuggestionService {
 
-    @Autowired
-    SuggestionRepository suggestionRepository;
+    private final SuggestionRepository suggestionRepository;
 
-    @Autowired
-    UserRepository userRepository;
+    private final UserRepository userRepository;
 
-    @Autowired
-    BlogRepository blogRepository;
+    private final BlogRepository blogRepository;
 
     @Override
     public List<SuggestionEntity> getAllSuggestionsByBlogId(int blogId) throws Exception {
 
-        List<SuggestionEntity> suggestions = suggestionRepository.findAllByBlogId(blogId).orElseThrow(
+        BlogEntity blog  = blogRepository.findById(blogId).orElseThrow(()->new Exception("Blog against blogid not found."));
+        List<SuggestionEntity> suggestions = suggestionRepository.findAllByBlogByBlogId(blog).orElseThrow(
                 () -> new Exception("Suggestions not found.")
         );
 
@@ -36,9 +37,10 @@ public class SuggestionServiceImpl implements SuggestionService {
     }
 
     @Override
-    public List<SuggestionEntity> getAllSuggestionsByUserId(int userId) {
-        List<SuggestionEntity> suggestions = suggestionRepository.findAllBySuggesterId(userId).orElseThrow(
-                () -> new RuntimeException("Suggestions not found.")
+    public List<SuggestionEntity> getAllSuggestionsByUserId(int userId) throws Exception {
+        UserEntity suggester = userRepository.findById(userId).orElseThrow(() -> new Exception("Suggestions not found."));
+        List<SuggestionEntity> suggestions = suggestionRepository.findAllByUserBySuggesterId(suggester).orElseThrow(
+                () -> new Exception("Suggestions not found.")
         );
         return suggestions;
     }
@@ -53,7 +55,7 @@ public class SuggestionServiceImpl implements SuggestionService {
         suggestionEntity.setUserBySuggesterId(user);
         suggestionEntity.setBlogByBlogId(blog);
         //fix this boolean/tinyint/byte issue
-        //suggestionEntity.setIsRejected(false);
+        suggestionEntity.setIsRejected(false);
         SuggestionEntity addedSuggestion = suggestionRepository.save(suggestionEntity);
         return addedSuggestion;
     }

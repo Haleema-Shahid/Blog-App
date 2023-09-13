@@ -1,7 +1,13 @@
 package com.example.blogapp.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 
+import java.sql.Timestamp;
+import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
 
@@ -32,15 +38,26 @@ public class BlogEntity {
     private Byte isHidden;
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
+    @JsonBackReference
     private UserEntity userByUserId;
-    @OneToMany(mappedBy = "blogByBlogId")
+    @OneToMany(mappedBy = "blogByBlogId", cascade = CascadeType.ALL)
     private Set<BlogLikesEntity> blogLikesById;
-    @OneToMany(mappedBy = "blogByBlogId")
+    @OneToMany(mappedBy = "blogByBlogId", cascade = CascadeType.ALL)
     private Set<BlogReportEntity> blogReportsById;
-    @OneToMany(mappedBy = "blogByBlogId")
+    @OneToMany(mappedBy = "blogByBlogId", cascade = CascadeType.ALL)
     private Set<CommentEntity> commentsById;
-    @OneToMany(mappedBy = "blogByBlogId")
+    @OneToMany(mappedBy = "blogByBlogId", cascade = CascadeType.ALL)
+    @JsonManagedReference
+    @JsonIgnore
     private Set<SuggestionEntity> suggestionsById;
+    @Basic
+    @Column(name = "creation_date")
+    private Timestamp creationDate;
+    @Basic
+    @Column(name = "title")
+    private String title;
+    @OneToMany(mappedBy = "blogByBlogId", cascade = CascadeType.ALL)
+    private Set<BlogAttachmentEntity> blogAttachmentsById;
 
     public Integer getId() {
         return id;
@@ -78,24 +95,42 @@ public class BlogEntity {
         return isReported;
     }
 
-    public void setIsReported(Byte isReported) {
-        this.isReported = isReported;
+
+    public void setIsReported(boolean isReported) {
+        if(isReported){
+            this.isReported = 1;
+        }
+        else{
+            this.isReported = 0;
+        }
     }
 
     public Byte getIsApproved() {
         return isApproved;
     }
 
-    public void setIsApproved(Byte isApproved) {
-        this.isApproved = isApproved;
+
+    public void setIsApproved(boolean isApproved) {
+        if(isApproved){
+            this.isApproved = 1;
+        }
+        else{
+            this.isApproved = 0;
+        }
     }
 
     public Byte getIsHidden() {
         return isHidden;
     }
 
-    public void setIsHidden(Byte isHidden) {
-        this.isHidden = isHidden;
+
+    public void setIsHidden(boolean isHidden) {
+        if(isHidden){
+            this.isHidden = 1;
+        }
+        else{
+            this.isHidden = 0;
+        }
     }
 
     @Override
@@ -150,4 +185,29 @@ public class BlogEntity {
     public void setSuggestionsById(Set<SuggestionEntity> suggestionsById) {
         this.suggestionsById = suggestionsById;
     }
+
+    public Timestamp getCreationDate() {
+        return creationDate;
+    }
+
+    public void setCreationDate(Timestamp creationDate) {
+        this.creationDate = creationDate;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public Set<BlogAttachmentEntity> getBlogAttachmentsById() {
+        return blogAttachmentsById;
+    }
+
+    public void setBlogAttachmentsById(Set<BlogAttachmentEntity> blogAttachmentsById) {
+        this.blogAttachmentsById = blogAttachmentsById;
+    }
+
 }

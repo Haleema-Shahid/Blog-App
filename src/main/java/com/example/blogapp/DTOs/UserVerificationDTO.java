@@ -1,15 +1,14 @@
 package com.example.blogapp.DTOs;
 
-import com.example.blogapp.entities.UserEntity;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 @RequiredArgsConstructor
-@NoArgsConstructor
+//@NoArgsConstructor
 @Getter
 @Setter
-public class UserVerificationGetDTO {
+public class UserVerificationDTO {
     String code;
-    @JsonProperty("user_email")
+    @JsonProperty("email")
     String userEmail;
 }

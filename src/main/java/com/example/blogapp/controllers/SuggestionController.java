@@ -14,6 +14,8 @@ import java.util.ArrayList;
 import java.util.List;
 @RequiredArgsConstructor
 @RestController
+@RequestMapping("/suggestions")
+@CrossOrigin("http://localhost:3000")
 public class SuggestionController {
 
     private final SuggestionService suggestionService;
@@ -42,11 +44,12 @@ public class SuggestionController {
         }
     }
 
-    @PostMapping("/blog/{blogId}/suggestion/")
-    public ResponseEntity<SuggestionEntity> addSuggestion(@PathVariable int blogId, @RequestBody SuggestionPostDTO suggestionDTO) {
+    @PostMapping("/add")
+    public ResponseEntity<SuggestionEntity> addSuggestion(@RequestBody SuggestionPostDTO suggestionDTO) {
         try {
             Integer suggesterId = suggestionDTO.getSuggesterId();
             String suggestionString = suggestionDTO.getSuggestionString();
+            Integer blogId = suggestionDTO.getBlogId();
 
             SuggestionEntity suggestion = suggestionService.addSuggestion(blogId, suggesterId, suggestionString);
             return new ResponseEntity<>(suggestion, HttpStatus.OK);

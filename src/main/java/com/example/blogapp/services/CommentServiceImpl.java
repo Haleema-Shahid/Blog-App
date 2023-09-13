@@ -4,15 +4,17 @@ import com.example.blogapp.entities.BlogEntity;
 import com.example.blogapp.entities.CommentEntity;
 import com.example.blogapp.repositories.BlogRepository;
 import com.example.blogapp.repositories.CommentRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class CommentServiceImpl implements CommentService{
-    @Autowired
-    CommentRepository commentRepository;
-    @Autowired
-    BlogRepository blogRepository;
+
+    private final CommentRepository commentRepository;
+
+    private final BlogRepository blogRepository;
 
     @Override
     public CommentEntity getComment(int id) {
@@ -30,10 +32,42 @@ public class CommentServiceImpl implements CommentService{
     public String editComment(int id, int blogId, CommentEntity updated) {
         CommentEntity commentEntity = commentRepository.findById(id).orElseThrow(()->new RuntimeException("Comment with this id doesnt exist"));
         commentEntity.setComment(updated.getComment());
-        BlogEntity blog = blogRepository.findById(blogId).orElseThrow(()->new RuntimeException("Blog with this id doesnt exist"));
-        commentEntity.setBlogByBlogId(blog);
+        commentEntity.setCommentAttachmentsById(updated.getCommentAttachmentsById());
+        commentRepository
+                .save(commentEntity);
         return "updated succesfully!";
     }
 
+    @Override
+    public String likeComment(int commentId) throws Exception {
+        CommentEntity comment = commentRepository.findById(commentId).orElseThrow(()->new Exception("comment not found"));
+        comment.setLikes(comment.getLikes()+1);
+        commentRepository.save(comment);
+        return "liked comment successfully!";
+    }
+
+    @Override
+    public String unLikeComment(int commentId) throws Exception {
+        CommentEntity comment = commentRepository.findById(commentId).orElseThrow(()->new Exception("comment not found"));
+        comment.setLikes(comment.getLikes()-1);
+        commentRepository.save(comment);
+        return "unliked comment successfully!";
+    }
+
+    @Override
+    public String reportComment(int commentId) throws Exception {
+        CommentEntity comment = commentRepository.findById(commentId).orElseThrow(()->new Exception("comment not found"));
+        comment.setIsReported(true);
+        commentRepository.save(comment);
+        return "reported comment successfully!";
+    }
+
+    @Override
+    public String deleteComment(int commentId) throws Exception {
+        CommentEntity comment = commentRepository.findById(commentId).orElseThrow(()->new Exception("comment not found"));
+        comment.setIsHidden(true);
+        commentRepository.save(comment);
+        return "reported comment successfully!";
+    }
 }
 

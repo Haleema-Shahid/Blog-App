@@ -5,11 +5,15 @@ import lombok.*;
 import java.util.List;
 
 @RequiredArgsConstructor
-@NoArgsConstructor
+//@NoArgsConstructor
 @Getter
 @Setter
 public class CommentPostDTO {
-    String commentString;
+    String comment;
     List<String> attachments;
-    Integer blogId;
+    Byte isReported;
+    Byte isHidden;
+    Integer likes;
+    Integer replies;
+    Integer replyTo;
 }

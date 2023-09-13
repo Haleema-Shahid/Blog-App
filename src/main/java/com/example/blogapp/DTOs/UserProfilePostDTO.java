@@ -9,10 +9,11 @@ import java.io.Serializable;
 import java.util.Date;
 
 @RequiredArgsConstructor
-@NoArgsConstructor
+//@NoArgsConstructor
 @Getter
 @Setter
 public class UserProfilePostDTO implements Serializable {
+    Integer id;
     @JsonProperty("firstname")
     String firstName;
     @JsonProperty("lastname")
@@ -20,7 +21,6 @@ public class UserProfilePostDTO implements Serializable {
     String email;
     String password;
     Role role;
-    @JsonProperty("dob")
     @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="dd-MM-yyyy")
     Date dateOfBirth;
     String bio;

@@ -1,5 +1,6 @@
 package com.example.blogapp.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
 import java.util.Objects;
@@ -20,14 +21,15 @@ public class SuggestionEntity {
     private Byte isRejected;
     @ManyToOne
     @JoinColumn(name = "blog_id", referencedColumnName = "id", nullable = false)
+    @JsonBackReference
     private BlogEntity blogByBlogId;
     @ManyToOne
     @JoinColumn(name = "suggester_id", referencedColumnName = "id", nullable = false)
+    @JsonBackReference
     private UserEntity userBySuggesterId;
-    @OneToMany(mappedBy = "suggestionBySuggestionId")
-    private Set<SuggestionReplyEntity> suggestionRepliesById;
-    @OneToMany(mappedBy = "suggestionByReplyId")
-    private Set<SuggestionReplyEntity> suggestionRepliesById_0;
+    @Basic
+    @Column(name = "reply_to")
+    private Integer replyTo;
 
     public Integer getId() {
         return id;
@@ -49,8 +51,13 @@ public class SuggestionEntity {
         return isRejected;
     }
 
-    public void setIsRejected(Byte isRejected) {
-        this.isRejected = isRejected;
+    public void setIsRejected(boolean isRejected) {
+        if(isRejected){
+            this.isRejected = 1;
+        }
+        else{
+            this.isRejected = 0;
+        }
     }
 
     @Override
@@ -82,19 +89,11 @@ public class SuggestionEntity {
         this.userBySuggesterId = userBySuggesterId;
     }
 
-    public Set<SuggestionReplyEntity> getSuggestionRepliesById() {
-        return suggestionRepliesById;
+    public Integer getReplyTo() {
+        return replyTo;
     }
 
-    public void setSuggestionRepliesById(Set<SuggestionReplyEntity> suggestionRepliesById) {
-        this.suggestionRepliesById = suggestionRepliesById;
-    }
-
-    public Set<SuggestionReplyEntity> getSuggestionRepliesById_0() {
-        return suggestionRepliesById_0;
-    }
-
-    public void setSuggestionRepliesById_0(Set<SuggestionReplyEntity> suggestionRepliesById_0) {
-        this.suggestionRepliesById_0 = suggestionRepliesById_0;
+    public void setReplyTo(Integer replyTo) {
+        this.replyTo = replyTo;
     }
 }

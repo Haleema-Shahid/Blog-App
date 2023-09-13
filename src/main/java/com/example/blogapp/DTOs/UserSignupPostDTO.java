@@ -7,7 +7,7 @@ import lombok.*;
 
 import java.util.Date;
 @RequiredArgsConstructor
-@NoArgsConstructor
+//@NoArgsConstructor
 @Getter
 @Setter
 public class UserSignupPostDTO {
@@ -18,7 +18,6 @@ public class UserSignupPostDTO {
     String email;
     String password;
     Role role;
-    @JsonProperty("dob")
     @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="dd-MM-yyyy")
     Date dateOfBirth;
 }

@@ -9,14 +9,14 @@ import lombok.Setter;
 import java.util.Date;
 
 @RequiredArgsConstructor
-@NoArgsConstructor
+//@NoArgsConstructor
 @Getter
 @Setter
 public class UserDTO {
+    Integer id;
     String firstName;
     String lastName;
     String email;
-    @JsonProperty("pfp")
     String profilePicture;
     Date dob;
     String bio;
