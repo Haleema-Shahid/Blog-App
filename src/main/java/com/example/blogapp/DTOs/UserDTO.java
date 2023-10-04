@@ -14,11 +14,9 @@ import java.util.Date;
 @Setter
 public class UserDTO {
     Integer id;
-    String firstName;
-    String lastName;
+    String firstname;
+    String lastname;
     String email;
-    String profilePicture;
-    Date dob;
     String bio;
     String verificationCode;
     Boolean isEnabled;

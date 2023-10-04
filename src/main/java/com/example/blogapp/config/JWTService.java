@@ -44,6 +44,19 @@ public class JWTService {
                 .compact();
     }
 
+    public String expireToken(String token) {
+        // Parse the token to get its claims
+        Claims claims = extractAllClaims(token);
+
+        // Set the expiration date to a date in the past (e.g., now)
+        claims.setExpiration(new Date());
+
+        // Re-sign the token with the updated claims
+        return Jwts.builder()
+                .setClaims(claims)
+                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+                .compact();
+    }
     public boolean isTokenValid(String token, UserDetails userDetails){
         final String username = extractUsername(token);
         System.out.println("in is token valid: "+username);

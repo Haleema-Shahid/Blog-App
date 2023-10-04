@@ -19,7 +19,7 @@ public class BlogEntity {
     @Column(name = "id")
     private Integer id;
     @Basic
-    @Column(name = "content")
+    @Column(name = "content", columnDefinition="TEXT")
     private String content;
     @Basic
     @Column(name = "likes")

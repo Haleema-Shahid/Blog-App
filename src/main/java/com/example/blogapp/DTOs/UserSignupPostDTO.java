@@ -17,7 +17,5 @@ public class UserSignupPostDTO {
     String lastName;
     String email;
     String password;
-    Role role;
-    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="dd-MM-yyyy")
-    Date dateOfBirth;
+
 }

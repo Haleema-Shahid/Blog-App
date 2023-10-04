@@ -14,4 +14,6 @@ public interface SuggestionRepository extends JpaRepository<SuggestionEntity, In
     Optional<List<SuggestionEntity>> findAllByBlogByBlogId(BlogEntity blog);
 
     Optional<List<SuggestionEntity>> findAllByUserBySuggesterId(UserEntity user);
+
+    Optional<List<SuggestionEntity>> findByReplyTo(int id);
 }

@@ -10,5 +10,4 @@ public class SuggestionPostDTO {
     Integer blogId;
     String suggestionString;
     Integer suggesterId;
-
 }

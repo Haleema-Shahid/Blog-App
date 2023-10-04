@@ -16,6 +16,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.io.UnsupportedEncodingException;
+import java.sql.Timestamp;
+import java.util.Date;
 import java.util.Optional;
 
 @Service
@@ -48,12 +50,23 @@ public class UserServiceImpl implements UserService {
                 System.out.println("user is null");
                 return userLoginDTO;
             }
+            if (user.getDisableStart() != null) {
+                Date currentTime = new Date();
+                Date disableTime = new Date(user.getDisableStart().getTime());
+                if ((currentTime.getTime() - disableTime.getTime()) <= 300000) {
+                    System.out.println("login disabled");
+                    return null;
+                }
+            }
             System.out.println("user fetched: " + user.getEmail());
             String encodedPassword = user.getPassword();
             System.out.println("encoded: " + encodedPassword);
-            if (passwordEncoder.matches(password, encodedPassword) ) {
+            if (passwordEncoder.matches(password, encodedPassword)) {
                 System.out.println("matched");
-                if(!user.isEnabled()){
+                user.setIncorrectAttempts(null);
+                user.setDisableStart(null);
+
+                if (!user.isEnabled()) {
                     userLoginDTO.setId(-1);
                     userLoginDTO.setToken("User is not enabled");
                     return userLoginDTO;
@@ -62,16 +75,30 @@ public class UserServiceImpl implements UserService {
                 System.out.println(token);
                 userLoginDTO.setToken(token);
                 userLoginDTO.setId(user.getId());
+                userLoginDTO.setRole(user.getRole());
+                userRepository.save(user);
                 return userLoginDTO;
             } else {
                 userLoginDTO.setId(-2);
-                userLoginDTO.setToken("incorrect password");
+                userLoginDTO.setToken("incorrect credentials");
+                if (user.getIncorrectAttempts() == null) {
+                    user.setIncorrectAttempts(1);
+                } else {
+                    user.setIncorrectAttempts(user.getIncorrectAttempts() + 1);
+                    if (user.getIncorrectAttempts() == 5) {
+                        user.setDisableStart(new Timestamp(new Date().getTime()));
+                        //userLoginDTO=null;
+                    }
+                }
+                System.out.println("incorrect attempts: "+user.getIncorrectAttempts());
+                userRepository.save(user);
+
                 return userLoginDTO;
             }
         } catch (UsernameNotFoundException e) {
-            System.out.println("caught exception");
+            System.out.println(e.getMessage());
             UserLoginDTO userLoginDTO = new UserLoginDTO();
-            userLoginDTO.setToken("caught exception");
+            userLoginDTO.setToken("incorrect credentials");
             userLoginDTO.setId(-1);
             return userLoginDTO;
         }
@@ -93,11 +120,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public String verifyUser(String email, String code) {
         try {
-            System.out.println("code is "+code);
+            System.out.println("code is " + code);
             UserEntity user = userRepository.findByEmail(email).orElseThrow(() -> new Exception("User not found."));
 
-            if(user.getVerificationCode().equals(code)){
-                System.out.println("Got user against code: "+user.toString());
+            if (user.getVerificationCode().equals(code)) {
+                System.out.println("Got user against code: " + user.toString());
                 user.setIsEnabled(true);
                 userRepository.save(user);
                 return "enabled";
@@ -123,22 +150,21 @@ public class UserServiceImpl implements UserService {
     @Override
     public String editProfile(UserEntity user) throws Exception {
 
-            UserEntity userEntity = userRepository.findById(user.getId()).orElseThrow(() -> new Exception("User doesnt exist"));
-            userEntity.setFirstname(user.getFirstname());
-            userEntity.setLastname(user.getLastname());
+        UserEntity userEntity = userRepository.findById(user.getId()).orElseThrow(() -> new Exception("User doesnt exist"));
+        userEntity.setFirstname(user.getFirstname());
+        userEntity.setLastname(user.getLastname());
 
-            if(!passwordEncoder.matches(user.getPassword(), userEntity.getPassword())){
-                String encodedPassword = passwordEncoder.encode(user.getPassword());
-                userEntity.setPassword(encodedPassword);
-            }
-            //if email has changed then verify it
-            verifyEmail(userEntity, user.getEmail());
-            userEntity.setEmail(user.getEmail());
-            userEntity.setDob(user.getDob());
-            userEntity.setBio(user.getBio());
-            userEntity.setProfileImage(user.getProfileImage());
-            userRepository.save(userEntity);
-            return "update successful!";
+        if (!passwordEncoder.matches(user.getPassword(), userEntity.getPassword())) {
+            String encodedPassword = passwordEncoder.encode(user.getPassword());
+            userEntity.setPassword(encodedPassword);
+        }
+        //if email has changed then verify it
+        verifyEmail(userEntity, user.getEmail());
+        userEntity.setEmail(user.getEmail());
+        //userEntity.setDob(user.getDob());
+        //userEntity.setBio(user.getBio());
+        userRepository.save(userEntity);
+        return "update successful!";
 
     }
 
@@ -165,7 +191,7 @@ public class UserServiceImpl implements UserService {
 
 
         String email = user.getEmail();
-        String link = "http://localhost:3000/verification/" +email+"/"+ code;
+        String link = "http://localhost:3000/verification/" + email + "/" + code;
         content = content.replace("[[link]]", link);
 
         helper.setText(content, true);

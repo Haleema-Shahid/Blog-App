@@ -1,7 +1,6 @@
 package com.example.blogapp.config;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -17,11 +16,6 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-
-import java.util.Arrays;
-import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -46,62 +40,72 @@ public class SecurityConfig {
 //        http.csrf(AbstractHttpConfigurer::disable);
 //        http.cors(AbstractHttpConfigurer::disable);
         http.authorizeHttpRequests(auth -> auth.requestMatchers("/users/login").permitAll()
-                .requestMatchers("/blogs/tiny").hasAuthority("ROLE_USER")
-                .requestMatchers("/blogs/all").hasAuthority("ROLE_USER")
-                .requestMatchers("/users/add-user").permitAll()
-                .requestMatchers("/users/verification").permitAll()
-                .requestMatchers("/users/{id}").permitAll()
-                .requestMatchers("/users/edit").permitAll()
-                .requestMatchers("/swagger-ui-custom.html").permitAll()
-                .requestMatchers("/swagger-ui/index.html").permitAll()
-                .requestMatchers("/swagger-ui/**").permitAll()
-                .requestMatchers("/v3/api-docs/**").permitAll()
-                .requestMatchers("/blogs/add-blog").hasAuthority("ROLE_USER")
-                .requestMatchers("/blogs/{id}").hasAuthority("ROLE_USER")
-                .requestMatchers("/blogs/edit").hasAuthority("ROLE_USER")
-                .requestMatchers("/blogs/{id}/like").hasAuthority("ROLE_USER")
-                .requestMatchers("/blogs/{id}/unlike").hasAuthority("ROLE_USER")
-                .requestMatchers("/blogs/{id}/report").hasAuthority("ROLE_USER")
-                .requestMatchers("/blogs/{id}/delete").hasAuthority("ROLE_USER")
-                .requestMatchers("/blogs/{id}/user/{userId}/comment").hasAuthority("ROLE_USER")
-                .requestMatchers("/blogs/{id}/comment/{commentId}/edit").hasAuthority("ROLE_USER")
-                .requestMatchers("/blogs/comment/{id}/replies").hasAuthority("ROLE_USER")
-                .requestMatchers("/comments/{id}/like").hasAuthority("ROLE_USER")
-                .requestMatchers("/comments/{id}/unlike").hasAuthority("ROLE_USER")
-                .requestMatchers("/comments/{id}/edit").hasAuthority("ROLE_USER")
-                .requestMatchers("/comments/{id}/report").hasAuthority("ROLE_USER")
-                .requestMatchers("/comments/{id}/delete").hasAuthority("ROLE_USER")
-                .requestMatchers("/suggestions/add").hasAuthority("ROLE_USER")
+//                .requestMatchers("/blogs/{id}/approve").hasAuthority("ROLE_MODERATOR")
+//                .requestMatchers("/blogs/unapproved").hasAuthority("ROLE_MODERATOR")
+                        .requestMatchers("/blogs/tiny").hasAuthority("ROLE_USER")
+                        .requestMatchers("/users/logout").hasAnyAuthority("ROLE_USER","ROLE_ADMIN","ROLE_MODERATOR")
+                        .requestMatchers("/blogs/approved").permitAll()
+                        .requestMatchers("/blogs/unapproved").hasAnyAuthority("ROLE_MODERATOR","ROLE_ADMIN")
+                        .requestMatchers("/blogs/unapproved/{id}").hasAnyAuthority("ROLE_MODERATOR","ROLE_ADMIN")
+                        .requestMatchers("/blogs/reported/{id}").hasAnyAuthority("ROLE_MODERATOR","ROLE_ADMIN")
+                        .requestMatchers("/blogs/reported").hasAnyAuthority("ROLE_MODERATOR","ROLE_ADMIN")
+                        .requestMatchers("/comments/reported").hasAnyAuthority("ROLE_MODERATOR","ROLE_ADMIN")
+                        .requestMatchers("/users/add-user").permitAll()
+                        .requestMatchers("/users/verification").permitAll()
+                        .requestMatchers("/users/edit").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+                        .requestMatchers("/blogs/add-blog").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+                        .requestMatchers("/blogs/{id}").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+                        .requestMatchers("/blogs/edit").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+                        .requestMatchers("/blogs/{id}/like").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+                        .requestMatchers("/blogs/{id}/unlike").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+                        .requestMatchers("/blogs/{id}/report").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+                        .requestMatchers("/blogs/{id}/delete").hasAnyAuthority("ROLE_USER", "ROLE_MODERATOR")
+                        .requestMatchers("/blogs/{id}/user/{userId}/comment").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+                        .requestMatchers("/blogs/{id}/comment/{commentId}/edit").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+                        .requestMatchers("/blogs/comment/{id}/replies").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+                        .requestMatchers("/comments/{id}/like").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+                        .requestMatchers("/comments/{id}/unlike").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+                        .requestMatchers("/comments/{id}/edit").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+                        .requestMatchers("/comments/{id}/report").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+                        .requestMatchers("/comments/{id}/delete").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+                        .requestMatchers("/suggestions/add").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+                        .requestMatchers("/suggestions/blog/{blogId}").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+                        .requestMatchers("/suggestions/{id}/reply").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+                        .requestMatchers("/suggestions/{id}/reject").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+                        .requestMatchers("/suggestions/{id}/edit").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+                        .requestMatchers("/suggestions/{id}/replies").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+                        .requestMatchers("/users/{id}").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+                        .requestMatchers("/blogs/user/{userId}").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+                        .requestMatchers("/suggestions/user/{userId}").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+                        .requestMatchers("/blogs/{id}/approve").hasAnyAuthority("ROLE_MODERATOR", "ROLE_ADMIN")
+                        .requestMatchers("/swagger-ui-custom.html").permitAll()
+                        .requestMatchers("/swagger-ui/index.html").permitAll()
+                        .requestMatchers("/swagger-ui/**").permitAll()
+                        .requestMatchers("/v3/api-docs/**").permitAll()
+
         );
 //        http.httpBasic(Customizer.withDefaults())
         http.addFilterBefore(jwtAuthFilter, BasicAuthenticationFilter.class);
         return http.build();
     }
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-//    @Bean
-//    CorsConfigurationSource corsConfigurationSource() {
-//        CorsConfiguration configuration = new CorsConfiguration();
-//        configuration.setAllowedOrigins(List.of("*"));
-//        configuration.setAllowedMethods(Arrays.asList("GET","POST","PATCH","DELETE","OPTIONS"));
-//        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-//        source.registerCorsConfiguration("/**", configuration);
-//        return source;
-//    }
-@Bean
-public CorsFilter corsFilter() {
-    CorsConfiguration corsConfiguration = new CorsConfiguration();
-    corsConfiguration.setAllowCredentials(true);
-    corsConfiguration.setAllowedOrigins(Constants.CORS_ALLOWED_ORIGINS);
-    corsConfiguration.setAllowedHeaders(Constants.CORS_ALLOWED_HEADERS);
-    corsConfiguration.setExposedHeaders(Constants.CORS_EXPOSED_HEADERS);
-    corsConfiguration.setAllowedMethods(Constants.CORS_ALLOWED_METHODS);
-    UrlBasedCorsConfigurationSource urlBasedCorsConfigurationSource = new UrlBasedCorsConfigurationSource();
-    urlBasedCorsConfigurationSource.registerCorsConfiguration(Constants.CORS_CONFIGURATION_PATTERN, corsConfiguration);
-    return new CorsFilter(urlBasedCorsConfigurationSource);
-}
+
+    @Bean
+    public CorsFilter corsFilter() {
+        CorsConfiguration corsConfiguration = new CorsConfiguration();
+        corsConfiguration.setAllowCredentials(true);
+        corsConfiguration.setAllowedOrigins(Constants.CORS_ALLOWED_ORIGINS);
+        corsConfiguration.setAllowedHeaders(Constants.CORS_ALLOWED_HEADERS);
+        corsConfiguration.setExposedHeaders(Constants.CORS_EXPOSED_HEADERS);
+        corsConfiguration.setAllowedMethods(Constants.CORS_ALLOWED_METHODS);
+        UrlBasedCorsConfigurationSource urlBasedCorsConfigurationSource = new UrlBasedCorsConfigurationSource();
+        urlBasedCorsConfigurationSource.registerCorsConfiguration(Constants.CORS_CONFIGURATION_PATTERN, corsConfiguration);
+        return new CorsFilter(urlBasedCorsConfigurationSource);
+    }
 
 
 }

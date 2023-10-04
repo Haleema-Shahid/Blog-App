@@ -14,16 +14,9 @@ import java.util.Date;
 @Setter
 public class UserProfilePostDTO implements Serializable {
     Integer id;
-    @JsonProperty("firstname")
-    String firstName;
-    @JsonProperty("lastname")
-    String lastName;
+    String firstname;
+    String lastname;
     String email;
     String password;
-    Role role;
-    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="dd-MM-yyyy")
-    Date dateOfBirth;
     String bio;
-    @JsonProperty("pfp")
-    String profilePicture;
 }

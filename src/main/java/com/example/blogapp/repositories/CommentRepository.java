@@ -14,4 +14,6 @@ public interface CommentRepository extends JpaRepository<CommentEntity, Integer>
     Optional<List<CommentEntity>> findCommentEntitiesByBlogByBlogId(BlogEntity blog);
 
     List<CommentEntity> findByReplyTo(int commentId);
+
+    Optional<List<CommentEntity>> findAllByIsHiddenAndIsReported(byte b, byte b1);
 }

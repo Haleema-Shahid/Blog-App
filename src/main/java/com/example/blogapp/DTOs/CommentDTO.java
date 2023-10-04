@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
+import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
 
@@ -15,7 +16,7 @@ public class CommentDTO {
     String comment;
     List<String> attachments;
     UserDTO commenter;
-    Date creationDate;
+    Timestamp creationDate;
     int likes;
     int replies;
 }

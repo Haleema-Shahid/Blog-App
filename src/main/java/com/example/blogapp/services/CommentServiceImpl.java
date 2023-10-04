@@ -8,6 +8,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class CommentServiceImpl implements CommentService{
@@ -65,9 +68,18 @@ public class CommentServiceImpl implements CommentService{
     @Override
     public String deleteComment(int commentId) throws Exception {
         CommentEntity comment = commentRepository.findById(commentId).orElseThrow(()->new Exception("comment not found"));
+        BlogEntity blog = comment.getBlogByBlogId();
+
         comment.setIsHidden(true);
         commentRepository.save(comment);
+        blog.setComments(blog.getComments()-1);
+        blogRepository.save(blog);
         return "reported comment successfully!";
+    }
+
+    @Override
+    public List<CommentEntity> getReportedComments() throws Exception {
+        return commentRepository.findAllByIsHiddenAndIsReported((byte)0, (byte)1).orElseThrow(()->new Exception("comments not found"));
     }
 }
 

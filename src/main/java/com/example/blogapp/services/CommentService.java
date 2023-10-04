@@ -2,6 +2,9 @@ package com.example.blogapp.services;
 
 import com.example.blogapp.entities.CommentEntity;
 
+import java.util.List;
+import java.util.Optional;
+
 public interface CommentService {
 
     CommentEntity getComment(int id);
@@ -16,4 +19,6 @@ public interface CommentService {
     String reportComment(int commentId) throws Exception;
 
     String deleteComment(int commentId) throws Exception;
+
+    List<CommentEntity> getReportedComments() throws Exception;
 }

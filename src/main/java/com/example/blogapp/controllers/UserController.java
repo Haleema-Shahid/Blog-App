@@ -1,8 +1,11 @@
 package com.example.blogapp.controllers;
 
 import com.example.blogapp.DTOs.*;
+import com.example.blogapp.config.JWTService;
 import com.example.blogapp.entities.UserEntity;
+import com.example.blogapp.enums.Role;
 import com.example.blogapp.services.UserService;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -10,20 +13,22 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
+import java.util.Map;
+
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/users")
 //@CrossOrigin(origins = "*", maxAge = 3600)
 @CrossOrigin(origins = {"http://localhost:3000"},methods={RequestMethod.GET,RequestMethod.POST,RequestMethod.PUT,RequestMethod.DELETE},allowCredentials = "true", maxAge = 3600)
-
 public class UserController {
-    @Autowired
-    UserService userService;
+    private final UserService userService;
 
-    @Autowired
-    ModelMapper modelMapper;
+    private final ModelMapper modelMapper;
 
-    @Autowired
-    PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
+
+    private final JWTService jwtService;
 
     @PostMapping("/login")
     public ResponseEntity<UserLoginDTO> login(@RequestBody UserLoginPostDTO user){
@@ -31,6 +36,10 @@ public class UserController {
         String password = user.getPassword();
         System.out.println(email+" "+password);
         UserLoginDTO response = userService.getUser(email, password);
+        System.out.println("response: "+response);
+        if(response == null){
+            return new ResponseEntity<>(new UserLoginDTO(), HttpStatus.LOCKED);
+        }
         if(response.getToken().equals("No user exists under this email.")){
             return new ResponseEntity<>(new UserLoginDTO(), HttpStatus.BAD_REQUEST);
         }
@@ -50,6 +59,14 @@ public class UserController {
     }
 
 
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout(@RequestBody Map<String, String> requestData){
+        String token = requestData.get("token");
+        System.out.println("for logout, token: "+ token);
+        String response = jwtService.expireToken(token);
+        System.out.println(response);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
     @GetMapping("/{id}")
     public ResponseEntity<UserDTO> getUser(@PathVariable Integer id){
         try {
@@ -65,12 +82,12 @@ public class UserController {
     public ResponseEntity<UserDTO> addUser(@RequestBody UserSignupPostDTO user){
         try {
             System.out.println("add-user api...");
+
             System.out.println(user.getFirstName());
             System.out.println(user.getLastName());
 
             UserEntity userEntity = modelMapper.map(user, UserEntity.class);
-
-
+            userEntity.setRole(Role.USER);
             String encodedPassword = passwordEncoder.encode(userEntity.getPassword());
             userEntity.setPassword(encodedPassword);
 
@@ -81,6 +98,7 @@ public class UserController {
             return new ResponseEntity<>(userDto, HttpStatus.OK);
         }
         catch(Exception e){
+            System.out.println(e.getMessage());
             return new ResponseEntity<>(new UserDTO(), HttpStatus.BAD_REQUEST);
         }
     }

@@ -9,6 +9,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.sql.Date;
+import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
@@ -73,6 +74,12 @@ public class UserEntity implements UserDetails {
     @Basic
     @Column(name = "dob")
     private Date dob;
+    @Basic
+    @Column(name = "incorrect_attempts")
+    private Integer incorrectAttempts;
+    @Basic
+    @Column(name = "disable_start")
+    private Timestamp disableStart;
 
     public Integer getId() {
         return id;
@@ -153,8 +160,6 @@ public class UserEntity implements UserDetails {
         return role;
     }
 
-
-
     public void setRole(Role role) {
         System.out.println("received role from db: "+role);
         this.role = role;
@@ -197,7 +202,6 @@ public class UserEntity implements UserDetails {
         this.blogsById = blogsById;
     }
 
-
     public Set<BlogLikesEntity> getBlogLikesById() {
         return blogLikesById;
     }
@@ -209,8 +213,6 @@ public class UserEntity implements UserDetails {
     public Set<BlogReportEntity> getBlogReportsById() {
         return blogReportsById;
     }
-
-
 
     public void setBlogReportsById(Set<BlogReportEntity> blogReportsById) {
         this.blogReportsById = blogReportsById;
@@ -232,8 +234,6 @@ public class UserEntity implements UserDetails {
         this.commentLikesById = commentLikesById;
     }
 
-
-
     public Set<CommentReportEntity> getCommentReportsById() {
         return commentReportsById;
     }
@@ -249,8 +249,6 @@ public class UserEntity implements UserDetails {
     public void setSuggestionsById(Set<SuggestionEntity> suggestionsById) {
         this.suggestionsById = suggestionsById;
     }
-
-
 
     public String getVerificationCode() {
         return verificationCode;
@@ -286,5 +284,21 @@ public class UserEntity implements UserDetails {
 
     public void setDob(Date dob) {
         this.dob = dob;
+    }
+
+    public Integer getIncorrectAttempts() {
+        return incorrectAttempts;
+    }
+
+    public void setIncorrectAttempts(Integer incorrectAttempts) {
+        this.incorrectAttempts = incorrectAttempts;
+    }
+
+    public Timestamp getDisableStart() {
+        return disableStart;
+    }
+
+    public void setDisableStart(Timestamp disableStart) {
+        this.disableStart = disableStart;
     }
 }

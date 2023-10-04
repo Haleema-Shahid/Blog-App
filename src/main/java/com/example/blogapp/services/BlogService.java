@@ -1,5 +1,6 @@
 package com.example.blogapp.services;
 
+import com.example.blogapp.DTOs.BlogDTO;
 import com.example.blogapp.DTOs.BlogPostDTO;
 import com.example.blogapp.DTOs.CommentDTO;
 import com.example.blogapp.DTOs.CommentPostDTO;
@@ -10,7 +11,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public interface BlogService {
-    BlogEntity getBlog(int id);
+    BlogEntity getBlog(int id) throws Exception;
+
+    BlogEntity getUnapprovedBlogById(int id) throws Exception;
+
+    BlogEntity getReportedBlogById(int id) throws Exception;
 
     String addBlog(BlogPostDTO blogDTO);
 
@@ -30,4 +35,11 @@ public interface BlogService {
     String editComment(int commentId, CommentPostDTO updatedComment) throws Exception;
 
     List<CommentDTO> getReplies(int commentId);
+
+    List<BlogDTO> getBlogs(int userId) throws Exception;
+
+    String approveBlog(int id) throws Exception;
+
+    List<BlogEntity> getUnapprovedBlogs();
+    List<BlogEntity> getReportedBlogs();
 }

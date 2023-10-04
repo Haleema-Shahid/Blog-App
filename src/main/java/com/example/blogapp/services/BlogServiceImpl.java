@@ -1,9 +1,6 @@
 package com.example.blogapp.services;
 
-import com.example.blogapp.DTOs.BlogPostDTO;
-import com.example.blogapp.DTOs.CommentDTO;
-import com.example.blogapp.DTOs.CommentPostDTO;
-import com.example.blogapp.DTOs.UserDTO;
+import com.example.blogapp.DTOs.*;
 import com.example.blogapp.entities.*;
 import com.example.blogapp.repositories.*;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -32,13 +30,22 @@ public class BlogServiceImpl implements BlogService {
 
     final private CommentAttachmentRepository commentAttachmentRepository;
 
-    @Autowired
-    ModelMapper modelMapper;
+    final private ModelMapper modelMapper;
 
 
     @Override
-    public BlogEntity getBlog(int id) {
-        return blogRepository.findByIdAndIsHidden(id, (byte) 0).orElseThrow(() -> new RuntimeException("Blog not found!"));
+    public BlogEntity getBlog(int id) throws Exception {
+        return blogRepository.findByIdAndIsHiddenAndIsApproved(id, (byte) 0, (byte)1).orElseThrow(() -> new Exception("Blog not found!"));
+    }
+
+    @Override
+    public BlogEntity getUnapprovedBlogById(int id) throws Exception {
+        return blogRepository.findByIdAndIsHiddenAndIsApproved(id, (byte) 0, (byte)0).orElseThrow(() -> new Exception("Blog not found!"));
+    }
+
+    @Override
+    public BlogEntity getReportedBlogById(int id) throws Exception {
+        return blogRepository.findByIdAndIsHiddenAndIsReported(id, (byte) 0, (byte)1).orElseThrow(() -> new Exception("Blog not found!"));
     }
 
     @Override
@@ -46,10 +53,12 @@ public class BlogServiceImpl implements BlogService {
         try {
             Integer userId = blogDTO.getUserId();
             BlogEntity blogEntity = modelMapper.map(blogDTO, BlogEntity.class);
+            System.out.println("In addblog ID: "+blogEntity.getId());
             System.out.println("In addblog isapproved: " + blogEntity.getIsApproved());
             System.out.println("In addblog isreported: " + blogEntity.getIsReported());
             System.out.println("In addblog title: " + blogEntity.getTitle());
 
+            blogEntity.setId(null);
             UserEntity user = userRepository.findById(userId).orElseThrow(() -> new Exception("user not found."));
             blogEntity.setUserByUserId(user);
             blogEntity.setCreationDate(new Timestamp(new Date().getTime()));
@@ -111,7 +120,7 @@ public class BlogServiceImpl implements BlogService {
 
     @Override
     public String deleteBlog(int blogId) throws Exception {
-        BlogEntity blog = blogRepository.findById(blogId).orElseThrow(()-> new Exception("blog not found"));
+        BlogEntity blog = blogRepository.findById(blogId).orElseThrow(() -> new Exception("blog not found"));
         blog.setIsHidden(true);
         blogRepository.save(blog);
         return "deleted blog successfully";
@@ -157,7 +166,7 @@ public class BlogServiceImpl implements BlogService {
 
     @Override
     public List<BlogEntity> getAllBlogs() {
-        List<BlogEntity> blogs = blogRepository.findAllByIsHidden((byte)0);
+        List<BlogEntity> blogs = blogRepository.findAllByIsHiddenAndIsApproved((byte) 0, (byte)1);
         return blogs;
     }
 
@@ -179,6 +188,7 @@ public class BlogServiceImpl implements BlogService {
                 commentDTO.setLikes(comment.getLikes());
                 commentDTO.setReplies(comment.getReplies());
                 commentDTO.setComment(comment.getComment());
+                commentDTO.setCreationDate(comment.getCreationDate());
                 UserDTO commenter = modelMapper.map(comment.getUserByCommenterId(), UserDTO.class);
                 commentDTO.setCommenter(commenter);
                 Set<CommentAttachmentEntity> attachmentEntitySet = comment.getCommentAttachmentsById();
@@ -275,6 +285,64 @@ public class BlogServiceImpl implements BlogService {
         System.out.println("replies: " + replies);
         return getCommentDTOS(replies);
     }
+
+    @Override
+    public List<BlogDTO> getBlogs(int userId) throws Exception {
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new Exception("User not found"));
+        List<BlogEntity> blogEntities = blogRepository.findAllByUserByUserIdAndIsApproved(user, (byte)1).orElseThrow(() -> new Exception("User not found"));
+
+
+        return blogEntities.stream()
+                .map(this::convertToBlogDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public String approveBlog(int id) throws Exception {
+        BlogEntity blog = blogRepository.findById(id).orElseThrow(()->new Exception("Blog not found"));
+        blog.setIsApproved(true);
+        blogRepository.save(blog);
+        return "approved";
+    }
+
+    @Override
+    public List<BlogEntity> getUnapprovedBlogs() {
+        List<BlogEntity> blogs = blogRepository.findAllByIsHiddenAndIsApproved((byte) 0, (byte)0);
+        return blogs;
+    }
+
+    @Override
+    public List<BlogEntity> getReportedBlogs() {
+        List<BlogEntity> blogs = blogRepository.findAllByIsHiddenAndIsReported((byte) 0, (byte)1);
+        return blogs;
+    }
+
+    private BlogDTO convertToBlogDTO(BlogEntity blogEntity) {
+        BlogDTO blogDTO = new BlogDTO();
+        blogDTO.setId(blogEntity.getId());
+        blogDTO.setTitle(blogEntity.getTitle());
+        blogDTO.setContent(blogEntity.getContent());
+        Set<BlogAttachmentEntity> attachmentEntitySet = blogEntity.getBlogAttachmentsById();
+        List<String> attachments = new ArrayList<>();
+        for (BlogAttachmentEntity attachmentEntity : attachmentEntitySet) {
+            attachments.add(attachmentEntity.getAttachment());
+        }
+        blogDTO.setAttachments(attachments);
+        blogDTO.setLikes(blogEntity.getLikes());
+        blogDTO.setComments(blogEntity.getComments());
+
+        // Assuming UserEntity has appropriate getters for firstname and lastname
+        UserWithBlogDTO userDTO = new UserWithBlogDTO();
+        userDTO.setFirstname(blogEntity.getUserByUserId().getFirstname());
+        userDTO.setLastname(blogEntity.getUserByUserId().getLastname());
+
+        blogDTO.setUser(userDTO);
+        // You may also need to map blog comments here if necessary
+
+        return blogDTO;
+    }
+
 
     private List<CommentDTO> getCommentDTOS(List<CommentEntity> replies) {
         List<CommentDTO> commentDTOS = new ArrayList<>();

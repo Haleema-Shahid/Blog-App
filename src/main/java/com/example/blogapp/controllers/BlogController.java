@@ -17,7 +17,7 @@ import java.util.Set;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/blogs")
-@CrossOrigin(origins = {"http://localhost:3000"},methods={RequestMethod.GET,RequestMethod.POST,RequestMethod.PUT,RequestMethod.DELETE},allowCredentials = "true", maxAge = 3600)
+@CrossOrigin(origins = "http://localhost:3000")
 public class BlogController {
 
 
@@ -30,26 +30,42 @@ public class BlogController {
         return "hello tiny";
     }
 
-    @GetMapping("/all")
+    @GetMapping("/approved")
     public ResponseEntity<BlogsGetDTO> getAllBlogs() {
         try {
             List<BlogEntity> blogs = blogService.getAllBlogs();
-            List<BlogDTO> blogsDTO = new ArrayList<>();
-            for (BlogEntity blog : blogs) {
-                UserWithBlogDTO user = modelMapper.map(blog.getUserByUserId(), UserWithBlogDTO.class);
-                BlogDTO blogDTO = modelMapper.map(blog, BlogDTO.class);
-                blogDTO.setUser(user);
-                blogsDTO.add(blogDTO);
-            }
-            BlogsGetDTO blogsGetDTO = new BlogsGetDTO();
-            blogsGetDTO.setBlogs(blogsDTO);
-            return new ResponseEntity<>(blogsGetDTO, HttpStatus.OK);
+            return getBlogsGetDTOResponseEntity(blogs);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return new ResponseEntity<>(new BlogsGetDTO(), HttpStatus.BAD_REQUEST);
+        }
+    }
+    @GetMapping("/unapproved")
+    public ResponseEntity<BlogsGetDTO> getUnapprovedBlogs() {
+        System.out.println("wowzaa");
+        try {
+            System.out.println("in the api");
+            List<BlogEntity> blogs = blogService.getUnapprovedBlogs();
+            return getBlogsGetDTOResponseEntity(blogs);
         } catch (Exception e) {
             System.out.println(e.getMessage());
             return new ResponseEntity<>(new BlogsGetDTO(), HttpStatus.BAD_REQUEST);
         }
     }
 
+
+    @GetMapping("/reported")
+    public ResponseEntity<BlogsGetDTO> getReportedBlogs() {
+        System.out.println("wowzaa");
+        try {
+            System.out.println("in the api");
+            List<BlogEntity> blogs = blogService.getReportedBlogs();
+            return getBlogsGetDTOResponseEntity(blogs);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return new ResponseEntity<>(new BlogsGetDTO(), HttpStatus.BAD_REQUEST);
+        }
+    }
     @GetMapping("/{id}")
     public ResponseEntity<BlogDTO> getBlog(@PathVariable int id) {
         try {
@@ -223,6 +239,104 @@ public class BlogController {
             System.out.println(e.getMessage());
             return new ResponseEntity<>(new ArrayList<>(), HttpStatus.OK);
         }
+    }
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<BlogDTO>> getBlogsByUser(@PathVariable int userId){
+        try{
+            List<BlogDTO> blogs = blogService.getBlogs(userId);
+            for(BlogDTO blog: blogs){
+                System.out.println(blog.getUser()+" "+blog.getTitle());
+            }
+            return new ResponseEntity<>(blogs, HttpStatus.OK);
+        } catch(Exception e){
+            System.out.println(e.getMessage());
+            return new ResponseEntity<>(new ArrayList<>(), HttpStatus.OK);
+        }
+    }
+
+    @PostMapping("/{id}/approve")
+    public ResponseEntity<String> approveBlog(@PathVariable int id) {
+        try {
+            String response = blogService.approveBlog(id);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @GetMapping("/unapproved/{id}")
+    public ResponseEntity<BlogDTO> getUnapprovedBlogById(@PathVariable int id){
+        try {
+            BlogEntity blog = blogService.getUnapprovedBlogById(id);
+            BlogDTO blogDTO = modelMapper.map(blog, BlogDTO.class);
+            Set<BlogAttachmentEntity> attachmentEntitySet = blog.getBlogAttachmentsById();
+
+            List<String> attachments = new ArrayList<>();
+            for (BlogAttachmentEntity attachment : attachmentEntitySet) {
+                attachments.add(attachment.getAttachment());
+            }
+            blogDTO.setAttachments(attachments);
+
+            //List<CommentDTO> blogComments = blogService.getAllComments(id);
+            //blogDTO.setBlogComments(blogComments);
+
+
+            UserEntity user = blog.getUserByUserId();
+            UserWithBlogDTO userWithBlogDTO = modelMapper.map(user, UserWithBlogDTO.class);
+            System.out.println("blogger: "+userWithBlogDTO.getId());
+            blogDTO.setUser(userWithBlogDTO);
+
+
+            return new ResponseEntity<>(blogDTO, HttpStatus.OK);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return new ResponseEntity<>(new BlogDTO(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @GetMapping("/reported/{id}")
+    public ResponseEntity<BlogDTO> getReportedBlogById(@PathVariable int id){
+        try {
+            BlogEntity blog = blogService.getReportedBlogById(id);
+            BlogDTO blogDTO = modelMapper.map(blog, BlogDTO.class);
+            Set<BlogAttachmentEntity> attachmentEntitySet = blog.getBlogAttachmentsById();
+
+            List<String> attachments = new ArrayList<>();
+            for (BlogAttachmentEntity attachment : attachmentEntitySet) {
+                attachments.add(attachment.getAttachment());
+            }
+            blogDTO.setAttachments(attachments);
+
+            //List<CommentDTO> blogComments = blogService.getAllComments(id);
+            //blogDTO.setBlogComments(blogComments);
+
+
+            UserEntity user = blog.getUserByUserId();
+            UserWithBlogDTO userWithBlogDTO = modelMapper.map(user, UserWithBlogDTO.class);
+            System.out.println("blogger: "+userWithBlogDTO.getId());
+            blogDTO.setUser(userWithBlogDTO);
+
+
+            return new ResponseEntity<>(blogDTO, HttpStatus.OK);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return new ResponseEntity<>(new BlogDTO(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    private ResponseEntity<BlogsGetDTO> getBlogsGetDTOResponseEntity(List<BlogEntity> blogs) {
+        List<BlogDTO> blogsDTO = new ArrayList<>();
+        for (BlogEntity blog : blogs) {
+            UserWithBlogDTO user = modelMapper.map(blog.getUserByUserId(), UserWithBlogDTO.class);
+            BlogDTO blogDTO = modelMapper.map(blog, BlogDTO.class);
+            blogDTO.setUser(user);
+            blogDTO.setCreationTime(blog.getCreationDate());
+            blogsDTO.add(blogDTO);
+        }
+        BlogsGetDTO blogsGetDTO = new BlogsGetDTO();
+        blogsGetDTO.setBlogs(blogsDTO);
+        return new ResponseEntity<>(blogsGetDTO, HttpStatus.OK);
     }
 
 }

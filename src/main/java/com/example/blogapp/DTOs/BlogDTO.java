@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
+import java.sql.Timestamp;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -21,4 +22,5 @@ public class BlogDTO {
     Integer comments;
     UserWithBlogDTO user;
     List<CommentDTO> blogComments;
+    Timestamp creationTime;
 }
